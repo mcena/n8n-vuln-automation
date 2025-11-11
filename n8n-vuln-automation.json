@@ -1,0 +1,209 @@
+{
+  "name": "n8n-vuln-automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        0
+      ],
+      "id": "ec78a293-5327-41f6-8a83-05b942685a65",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "mcena",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "csvKafka",
+          "mode": "list",
+          "cachedResultName": "csvKafka",
+          "cachedResultUrl": "https://github.com/mcena/csvKafka"
+        },
+        "filePath": "build.gradle",
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "c2900094-2173-4cde-b655-d6c6fffa370c",
+      "name": "Get a file",
+      "webhookId": "80ad4ca0-c55d-4756-82be-0e0c3ff4640d",
+      "credentials": {
+        "githubApi": {
+          "id": "LzcSscrhNFsW3UyB",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= {{ $json.data }}\n\nIncrement the dependencies ONE MINOR version. The generated output should be on a Groovy language format (Remove special characters and code block comments)",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "ecf96eb0-8e4c-4d9d-84bd-690c2e3e64d7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "700bf2c5-8011-4b09-a2c5-85ec6a8ef7f0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CLczTAqv9ahZbPib",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "mcena",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "csvKafka",
+          "mode": "list",
+          "cachedResultName": "csvKafka",
+          "cachedResultUrl": "https://github.com/mcena/csvKafka"
+        },
+        "filePath": "build.gradle",
+        "fileContent": "={{ $json.output }}",
+        "commitMessage": "Update Vulnerabilities From N8N",
+        "additionalParameters": {
+          "branch": {
+            "branch": "n8n-test"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c91d56d7-496a-4801-a294-0a5ec45a54fc",
+      "name": "Edit a file",
+      "webhookId": "75189ef6-8bdd-4108-ad65-021579e7aa42",
+      "credentials": {
+        "githubApi": {
+          "id": "LzcSscrhNFsW3UyB",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        0
+      ],
+      "id": "2153d117-2d97-4821-b116-dc16b8ee5e35",
+      "name": "Extract from File"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b03f20ec-f66b-40a4-9336-257e193fbe28",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a73f7590d34b8f718dcf28552f684cede03b993f57fdc850fe29040543f6e99a"
+  },
+  "id": "vL0hInEwdhQl7CVl",
+  "tags": []
+}
